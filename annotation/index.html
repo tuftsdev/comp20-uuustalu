@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Fail</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+<h1 id="title">Fail</h1>
+
+<video src="https://www.cs.tufts.edu/comp/20/fail.mp4" id="failvideo" controls></video>
+<div id="lyrics"></div>
+
+<script>
+    var video = document.getElementById("failvideo");
+    var lyricField = document.getElementById("lyrics");
+    var lyrics = [];
+
+    function addLyrics(startTime, endTime, lyricString ) {
+        for (var i = startTime; i < endTime; i++) {
+            lyrics[i] = lyricString;
+        }
+    }
+
+    function displayLyrics() {
+        var lyricString = lyrics[Math.floor(video.currentTime)];
+        if (lyricString === undefined) {
+            lyricString = "";
+        }
+        lyricField.innerHTML = lyricString;
+    }
+
+    addLyrics(9, 13, "You've got me feelin' emotions");
+    addLyrics(13, 16, "Deeper than I've ever dreamed of");
+    addLyrics(17, 21, "You've got me feelin' emotions");
+    addLyrics(21, 24, "Higher than the heavens above");
+    addLyrics(26, 30, "I feel good, I feel nice");
+    addLyrics(30, 33, "I've never felt so satisfied");
+    addLyrics(34, 38, "I'm in love, I'm alive");
+    addLyrics(38, 40, "Intoxicated, flyin' high");
+    addLyrics(43, 46, "Feels like a dream");
+    addLyrics(46, 50, "When you touch me tenderly");
+    addLyrics(52, 55, "I don't know if it's real");
+    addLyrics(55, 58, "But I like the way I feel inside");
+    addLyrics(59, 63, "You've got me feelin' emotions");
+    addLyrics(63, 66, "Deeper than I've ever dreamed of");
+    addLyrics(67, 71, "You've got me feelin' emotions");
+    addLyrics(71, 74, "Higher than the heavens above");
+
+    video.addEventListener("timeupdate", function () {
+        displayLyrics();
+    });
+</script>
+</body>
+</html>
