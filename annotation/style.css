@@ -1,7 +1,22 @@
 body {
-	background-color: #f0fff0;
-	font-family: Helvetica, Arial, sans-serif;
-	font-size: 12px;
-	margin-left: 5%;
-	margin-right: 5%;
+	background-color: #ffc0cb;
+	font-family: "Courier New", Courier, monospace;
+}
+
+h1 {
+	text-align: center;
+	text-transform: uppercase;
+	font-size: 36pt;
+}
+
+video {
+	display: block;
+	margin: auto;
+}
+
+div {
+	text-align: center;
+	margin-top: 20pt;
+	font-size: 20pt;
+	font-weight: bold;
 }
