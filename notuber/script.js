@@ -4,7 +4,7 @@ var myLat = 0;
 var myLng = 0;
 
 var myOptions = {
-	zoom: 15, // The larger the zoom number, the bigger the zoom
+	zoom: 15,
 	center: myPosition,
 	mapTypeId: google.maps.MapTypeId.ROADMAP
 };
@@ -30,7 +30,6 @@ var map;
 var marker;
 var infowindow;
 var distance;
-var metersInMile = 1609.344;
 
 var request = new XMLHttpRequest();
 var dataURL = "https://defense-in-derpth.herokuapp.com/submit";
@@ -40,6 +39,7 @@ var showType;
 var i = 0;
 var lat = 0;
 var lng = 0;
+var metersInMile = 1609.344;
 
 
 
@@ -47,6 +47,21 @@ function init()
 {
 	map = new google.maps.Map(document.getElementById("map"), myOptions);
 	getMyLocation();
+}
+
+function getMyLocation()
+{
+	if ("geolocation" in navigator) {
+		navigator.geolocation.getCurrentPosition(function(position) {
+			myLat = position.coords.latitude;
+			myLng = position.coords.longitude;
+			getData();
+		});
+	}
+	else {
+		alert("Your browser does not support geolocation. SAD!");
+		return;
+	}
 }
 
 function getData() {
@@ -58,7 +73,7 @@ function getData() {
 			data = JSON.parse(request.responseText);
 			processData();
 		}
-	}
+	};
 }
 
 function processData() {
@@ -77,21 +92,6 @@ function processData() {
 		renderMap();
 	}
 }
-			
-function getMyLocation()
-{
-	if ("geolocation" in navigator) {
-		navigator.geolocation.getCurrentPosition(function(position) {
-			myLat = position.coords.latitude;
-			myLng = position.coords.longitude;
-			getData();
-		});
-	}
-	else {
-		alert("Your browser does not support geolocation. SAD!");
-		return;
-	}
-}
 
 function renderMap()
 {
@@ -107,7 +107,7 @@ function renderMap()
 	marker.setMap(map);
 		
 	infowindow = new google.maps.InfoWindow();
-
+	
 	google.maps.event.addListener(marker, 'click', function() {
 		infowindow.setContent('<div class="username" id="me">'+this.title+'</div>');
 		infowindow.open(map, this);
@@ -119,9 +119,11 @@ function renderMap()
 function populateMap()
 {
 	for (i = 0; i < data[showType].length; i++) {
+
 		lat = data[showType][i].lat;
 		lng = data[showType][i].lng;
 		position = new google.maps.LatLng(lat, lng);
+
 		marker = new google.maps.Marker({
 			position: position,
 			icon: {url: icons[showType].url, scaledSize: icons[showType].size},
@@ -132,12 +134,15 @@ function populateMap()
 		distance = google.maps.geometry.spherical.computeDistanceBetween(myPosition, position);
 		distance = distance / metersInMile;
 
-		infowindow = new google.maps.InfoWindow();
-		google.maps.event.addListener(marker, 'click', function() {
-			infowindow.setContent(
-				'<div class="username">' + this.title + '</div>' +
-				'<div class="distance">' + distance + '</div');
-			infowindow.open(map, this);
-		});
+		google.maps.event.addListener(marker, 'click', addInfoWindow);
 	}
+}
+
+function addInfoWindow()
+{
+	infowindow.setContent(
+		'<div class="username">' + this.title + '</div>' +
+		'<div class="distance">' + distance + '</div'
+	);
+	infowindow.open(map, this);
 }
