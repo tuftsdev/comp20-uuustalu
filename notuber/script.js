@@ -5,7 +5,7 @@ var myLng = 0;
 
 var myOptions = {
 	zoom: 15, // The larger the zoom number, the bigger the zoom
-	center: me,
+	center: position,
 	mapTypeId: google.maps.MapTypeId.ROADMAP
 };
 
@@ -14,24 +14,29 @@ var icons = {
 		url: "me_icon.png",
 		size: new google.maps.Size(50, 50)
 	},
-	"driver": {
+	"drivers": {
 		url: "driver_icon.png",
 		size: new google.maps.Size(75, 30)
 	},
-	"passenger": {
+	"passengers": {
 		url: "passenger_icon.png",
 		size: new google.maps.Size(40, 40)
 	}
 };
 
-var me;
+var position;
 var map;
 var marker;
 var infowindow;
 
 var request = new XMLHttpRequest();
 var dataURL = "https://defense-in-derpth.herokuapp.com/submit";
+var data;
+var showType;
 
+var i = 0;
+var lat = 0;
+var lng = 0;
 
 
 
@@ -47,8 +52,26 @@ function getData() {
 	request.send("username="+username+"&lat="+myLat+"&lng="+myLng);
 	request.onreadystatechange = function() {
 		if (request.readyState == 4 && request.status == 200) {
-			console.log(request.responseText);
+			data = JSON.parse(request.responseText);
+			processData();
 		}
+	}
+}
+
+function processData() {
+	if(data["passengers"] !== undefined) {
+		showType = "passengers";
+	}
+	else if(data["drivers"] !== undefined) {
+		showType = "drivers";
+	}
+
+	if(showType === undefined) {
+		alert("Unable to retrieve vital data. SAD!");
+		return;
+	}
+	else {
+		renderMap();
 	}
 }
 			
@@ -59,21 +82,22 @@ function getMyLocation()
 			myLat = position.coords.latitude;
 			myLng = position.coords.longitude;
 			getData();
-			renderMap();
 		});
 	}
 	else {
 		alert("Your browser does not support geolocation. SAD!");
+		return;
 	}
 }
 
 function renderMap()
 {
-	me = new google.maps.LatLng(myLat, myLng);
+	position = new google.maps.LatLng(myLat, myLng);
 	
-	map.panTo(me);
+	map.panTo(position);
+
 	marker = new google.maps.Marker({
-		position: me,
+		position: position,
 		icon: {url: icons["me"].url, scaledSize: icons["me"].size},
 		title: username,
 	});
@@ -82,7 +106,29 @@ function renderMap()
 	infowindow = new google.maps.InfoWindow();
 
 	google.maps.event.addListener(marker, 'click', function() {
-		infowindow.setContent(marker.title);
-		infowindow.open(map, marker);
+		infowindow.setContent(this.title);
+		infowindow.open(map, this);
 	});
+
+	populateMap();
+}
+
+function populateMap()
+{
+	for (i = 0; i < data[showType].length; i++) {
+		lat = data[showType][i].lat;
+		lng = data[showType][i].lng;
+		position = new google.maps.LatLng(lat, lng);
+		marker = new google.maps.Marker({
+			position: position,
+			icon: {url: icons[showType].url, scaledSize: icons[showType].size},
+			title: data[showType][i].username
+		});
+		marker.setMap(map);
+		infowindow = new google.maps.InfoWindow();
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.setContent(this.title);
+			infowindow.open(map, this);
+		});
+	}
 }
