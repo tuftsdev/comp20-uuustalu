@@ -11,13 +11,16 @@ var myOptions = {
 
 var icons = {
 	"me": {
-		icon: "me_icon.png"
+		url: "me_icon.png",
+		size: new google.maps.Size(50, 50)
 	},
 	"driver": {
-		icon: "driver_icon.png"
+		url: "driver_icon.png",
+		size: new google.maps.Size(75, 30)
 	},
 	"passenger": {
-		icon: "passenger_icon.png"
+		url: "passenger_icon.png",
+		size: new google.maps.Size(40, 40)
 	}
 };
 
@@ -56,7 +59,7 @@ function renderMap()
 	map.panTo(me);
 	marker = new google.maps.Marker({
 		position: me,
-		icon: icons["me"].icon,
+		icon: {url: icons["me"].url, scaledSize: icons["me"].size},
 		title: username,
 	});
 	marker.setMap(map);
