@@ -30,6 +30,7 @@ var map;
 var marker;
 var infowindow;
 var distance;
+var metersInMile = 1609.344;
 
 var request = new XMLHttpRequest();
 var dataURL = "https://defense-in-derpth.herokuapp.com/submit";
@@ -108,7 +109,7 @@ function renderMap()
 	infowindow = new google.maps.InfoWindow();
 
 	google.maps.event.addListener(marker, 'click', function() {
-		infowindow.setContent("<div id=username>"+this.title+"</div>");
+		infowindow.setContent('<div class="username" id="me">'+this.title+'</div>');
 		infowindow.open(map, this);
 	});
 
@@ -127,12 +128,15 @@ function populateMap()
 			title: data[showType][i].username
 		});
 		marker.setMap(map);
+
 		distance = google.maps.geometry.spherical.computeDistanceBetween(myPosition, position);
+		distance = distance / metersInMile;
+
 		infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(marker, 'click', function() {
 			infowindow.setContent(
-				'<div id="username">' + this.title + '</div>' +
-				'<div id="distance">' + distance + '</div');
+				'<div class="username">' + this.title + '</div>' +
+				'<div class="distance">' + distance + '</div');
 			infowindow.open(map, this);
 		});
 	}

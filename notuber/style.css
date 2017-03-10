@@ -7,3 +7,15 @@ html, body {
 	margin: 0;
 	padding: 0;
 }
+
+.username {
+	font-weight: bold;
+}
+
+.distance {
+	font-style: italic;
+}
+
+#me {
+	font-size: 20px;
+}
