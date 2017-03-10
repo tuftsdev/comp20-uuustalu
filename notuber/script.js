@@ -102,14 +102,14 @@ function renderMap()
 	marker = new google.maps.Marker({
 		position: myPosition,
 		icon: {url: icons["me"].url, scaledSize: icons["me"].size},
-		title: username,
+		title: '<div class="username" id="me">'+username+'</div>'
 	});
 	marker.setMap(map);
 		
 	infowindow = new google.maps.InfoWindow();
-	
+
 	google.maps.event.addListener(marker, 'click', function() {
-		infowindow.setContent('<div class="username" id="me">'+this.title+'</div>');
+		infowindow.setContent(this.title);
 		infowindow.open(map, this);
 	});
 
@@ -124,15 +124,15 @@ function populateMap()
 		lng = data[showType][i].lng;
 		position = new google.maps.LatLng(lat, lng);
 
+		distance = google.maps.geometry.spherical.computeDistanceBetween(myPosition, position);
+		distance = distance / metersInMile;
+
 		marker = new google.maps.Marker({
 			position: position,
 			icon: {url: icons[showType].url, scaledSize: icons[showType].size},
-			title: data[showType][i].username
+			title: '<div class="username">'+data[showType][i].username+'</div>'+'<div class="distance">'+distance+'</div>'
 		});
 		marker.setMap(map);
-
-		distance = google.maps.geometry.spherical.computeDistanceBetween(myPosition, position);
-		distance = distance / metersInMile;
 
 		google.maps.event.addListener(marker, 'click', addInfoWindow);
 	}
@@ -140,9 +140,6 @@ function populateMap()
 
 function addInfoWindow()
 {
-	infowindow.setContent(
-		'<div class="username">' + this.title + '</div>' +
-		'<div class="distance">' + distance + '</div'
-	);
+	infowindow.setContent(this.title);
 	infowindow.open(map, this);
 }
