@@ -5,7 +5,7 @@ var myLng = 0;
 
 var myOptions = {
 	zoom: 15, // The larger the zoom number, the bigger the zoom
-	center: position,
+	center: myPosition,
 	mapTypeId: google.maps.MapTypeId.ROADMAP
 };
 
@@ -24,10 +24,12 @@ var icons = {
 	}
 };
 
+var myPosition;
 var position;
 var map;
 var marker;
 var infowindow;
+var distance;
 
 var request = new XMLHttpRequest();
 var dataURL = "https://defense-in-derpth.herokuapp.com/submit";
@@ -49,7 +51,7 @@ function init()
 function getData() {
 	request.open("POST", dataURL, true);
 	request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	request.send("username="+username+"&lat="+myLat+"&lng="+myLng);
+	request.send("username=" + username + "&lat=" + myLat + "&lng=" + myLng);
 	request.onreadystatechange = function() {
 		if (request.readyState == 4 && request.status == 200) {
 			data = JSON.parse(request.responseText);
@@ -92,12 +94,12 @@ function getMyLocation()
 
 function renderMap()
 {
-	position = new google.maps.LatLng(myLat, myLng);
+	myPosition = new google.maps.LatLng(myLat, myLng);
 	
-	map.panTo(position);
+	map.panTo(myPosition);
 
 	marker = new google.maps.Marker({
-		position: position,
+		position: myPosition,
 		icon: {url: icons["me"].url, scaledSize: icons["me"].size},
 		title: username,
 	});
@@ -106,7 +108,7 @@ function renderMap()
 	infowindow = new google.maps.InfoWindow();
 
 	google.maps.event.addListener(marker, 'click', function() {
-		infowindow.setContent(this.title);
+		infowindow.setContent("<div id=username>"+this.title+"</div>");
 		infowindow.open(map, this);
 	});
 
@@ -125,9 +127,12 @@ function populateMap()
 			title: data[showType][i].username
 		});
 		marker.setMap(map);
+		distance = google.maps.geometry.spherical.computeDistanceBetween(myPosition, position);
 		infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(marker, 'click', function() {
-			infowindow.setContent(this.title);
+			infowindow.setContent(
+				'<div id="username">' + this.title + '</div>' +
+				'<div id="distance">' + distance + '</div');
 			infowindow.open(map, this);
 		});
 	}
