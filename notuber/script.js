@@ -80,8 +80,8 @@ function processData() {
 	if(data["passengers"] !== undefined) {
 		showType = "passengers";
 	}
-	else if(data["drivers"] !== undefined) {
-		showType = "drivers";
+	else if(data["vehicles"] !== undefined) {
+		showType = "vehicles";
 	}
 
 	if(showType === undefined) {
