@@ -14,7 +14,7 @@ var icons = {
 		url: "me_icon.png",
 		size: new google.maps.Size(50, 50)
 	},
-	"drivers": {
+	"vehicles": {
 		url: "driver_icon.png",
 		size: new google.maps.Size(75, 30)
 	},
