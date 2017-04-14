@@ -32,7 +32,7 @@ var infowindow;
 var distance;
 
 var request = new XMLHttpRequest();
-var dataURL = "https://defense-in-derpth.herokuapp.com/submit";
+var dataURL = "https://stormy-journey-43122.herokuapp.com/submit";
 var data;
 var showType;
 
