@@ -1,0 +1,303 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<title>Security Assessment</title>
+	<link rel="stylesheet" href="style.css"/>
+	<meta charset="utf-8" />
+</head>
+
+<body>
+  	<p id="intro">
+  		COMP20 HW4 <br />
+		UKU-KASPAR UUSTALU <br />
+		25 APRIL 2017
+	</p>
+
+	<h1>Security Assessment</h1>
+
+	<h2>Introduction</h2>
+	<p>
+		The following is an in-comprehensive report outlining security flaws present in a ridesharing application imitator called NotUber. The imitator consists of two main components: a server-side database and API and a client-side (geo)graphical user interface.
+		The API allows read/write access to the database, where the usernames and geographical coordinates of passengers and drivers are stored. The client-side interface provides a represents the locations of either all drivers or passengers on a map via Google Maps API.
+	</p>
+
+	<h2>Methodology</h2>
+	<p>
+		A variety of common attacks were conducted. The server-side POST API was abused using Postman to identify XSS vulnerabilities. The server-side GET API was abused using a web browser to identify database injection vulnerabilities. Eventually the source code was analyzed and reviewed to identify and other vulnerability or other potential issues with the application.
+	</p>
+
+	<h2>Abstract of Findings</h2>
+	<p>
+		Four main issues were identified:
+	</p>
+	<ul>
+		<li>
+			Malicious content could be entered into the database and then show to other uses due to user input going unchecked.
+		</li>
+		<li>
+			Access to the database is not secured, meaning anyone has read/write access to the database and in some cases data that is not meant to be publicly available could be easily read.
+		</li>
+		<li>
+			Client-side interface has complete faith in the server-side database and API. Content received from the server-side is never checked and automatically shown to the user. This ensures that all attacks and compromises to the server-side also "flow through" to the client-side.
+		</li>
+		<li>
+			The data traveling between the server-side and the client-side or the server-side and anyone else (keep in mind that anyone can access the database) could be easily intercepted and modified.
+		</li>
+	</ul>
+
+
+	<h2>Issues Found</h2>
+	<ol>
+		<li><ul>
+			<li><span class="sub"> Issue: </span>
+				Latitude and longitude not verified to be numerical
+			</li>
+			<li><span class="sub"> Location: </span>
+				POST API
+			</li>
+			<li><span class="sub"> Severity: </span>
+				Low
+			</li>
+			<li><span class="sub"> Description: </span>
+				Although the application expects latitude and longitude to be floating point numbers, input is not rejected when latitude and longitude contain non-numerical data. Luckily non-numerical data inputed into these fields is sanitized and represented as NaN. However, since non-numerical input is not rejected, this causes the database to store broken data and "feed" broken data to the client-side application and user.
+			</li>
+			<li><span class="sub"> Resolution: </span>
+				Ensure latitude and longitude are numerical on input. Reject if otherwise.
+			</li>
+
+			<img
+				src="images/nan.png"
+				alt="Inadequate verification of user input causing the latitude and longitude to appear as NaN"
+				title="Inadequate verification of user input causing the latitude and longitude to appear as NaN"
+			/>
+
+		</ul></li></br>
+		<li><ul>
+			<li><span class="sub"> Issue: </span>
+				XSS
+			</li>
+			<li><span class="sub"> Location: </span>
+				POST API
+			</li>
+			<li><span class="sub"> Severity: </span>
+				High
+			</li>
+			<li><span class="sub"> Description: </span>
+				Data entered into the username field is inserted into the database and embedded into the HTML of the GET API without being validated or sanitized. This allows malicious HTML content and scripts to be entered into the database and rendered to the user. This could allow hackers to potentially steal sensitive information and mislead users. Here are a few examples XSS attacks could result in:
+					<ul>
+						<li>
+							Unwanted content (text, images, etc.) inserted into website.
+						</li>
+						<li>
+							Annoying alert messages.
+						</li>
+						<li>
+							Popup windows.
+						</li>
+						<li>
+							User being redirected to a different website.
+						</li>
+						<li>
+							A broken script or infinite loop/recursion causing the browser to crash and rendering the website useless.
+						</li>
+					</ul>
+			</li>
+			<li><span class="sub"> Resolution: </span>
+				Never-ever-ever trust user input! (Ensure data entered into the username field is alphanumerical on input. Reject if otherwise.)
+			</li>
+
+			<img
+				src="images/alert.png"
+				alt="Annoying alert message caused by XSS"
+				title="Annoying alert message caused by XSS"
+			/>
+			<img
+				src="images/image.png"
+				alt="Unwanted content appearing on website"
+				title="Unwanted content appearing on website"
+			/>
+			<img
+				src="images/popup.png"
+				alt="Google Chrome successfully blocking a popup caused by XSS"
+				title="Google Chrome successfully blocking a popup caused by XSS"
+			/>
+			<img
+				src="images/redirect.png"
+				alt="XSS attack resulting in the user being redirected to a different website"
+				title="XSS attack resulting in the user being redirected to a different website"
+			/>
+
+		</ul></li></br>
+		<li><ul>
+			<li><span class="sub"> Issue: </span>
+				Inadequate data validation in client-side application
+			</li>
+			<li><span class="sub"> Location: </span>
+				Client-side
+			</li>
+			<li><span class="sub"> Severity: </span>
+				Medium
+			</li>
+			<li><span class="sub"> Description: </span>
+				Data obtained from the database by the client-side application using the server-side API is not validated nor sanitized. If the database were secure and data entered into the database were adequately validated and sanitized by the server-side API, this would not be a problem. However, since the database is compromised, this allows malicious content from the database to also infect the client-side application. Luckily the Google Maps API used removes all obvious script segments before rendering the website. However, other unwanted content (text, images, etc.) will still be rendered and malicious script segments could still be inserted via broken img tags.
+			</li>
+			<li><span class="sub"> Resolution: </span>
+				Secure database or validate and sanitize data obtained form the database.
+			</li>
+
+			<img
+				src="images/map_alert.png"
+				alt="Annoying alert message caused by a script inserted into a broken img tag"
+				title="Annoying alert message caused by a script inserted into a broken img tag"
+			/>
+			<img
+				src="images/map_image.png"
+				alt="Unwanted content appearing in client-side interface"
+				title="Unwanted content appearing in client-side interface"
+			/>
+
+		</ul></li></br>
+		<li><ul>
+			<li><span class="sub"> Issue: </span>
+				Database injection
+			</li>
+			<li><span class="sub"> Location: </span>
+				GET vehicle.json API
+			</li>
+			<li><span class="sub"> Severity: </span>
+				Medium
+			</li>
+			<li><span class="sub"> Description: </span>
+				Data inserted into the GET vehicle.json API query string is not validated nor sanitized. This opens up the possibility of database injection. The API is intended to provide data associated with a specific username to the client if and only if the client knows said username. However, if a [$ne] tag and a dummy username are used in the query string, the API returns the first vehicle entry in the database. This kind of a query tells the database to return all entries that are not the dummy username. Luckily the specific implementation of this API only compromises the first entry in the database. If the API were differently designed, this could result in the return of all vehicle entries and the whole database being compromised.
+			</li>
+			<li><span class="sub"> Resolution: </span>
+				Validate and sanitize query string input and/or require authentication to access the database.
+			</li>
+
+			<img
+				src="images/injection.png"
+				alt="Malicious query string input resuling in database compromisation"
+				title="Malicious query string input resuling in database compromisation"
+			/>
+
+		</ul></li></br>
+		<li><ul>
+			<li><span class="sub"> Issue: </span>
+				CORS enabled
+			</li>
+			<li><span class="sub"> Location: </span>
+				Server-side API
+			</li>
+			<li><span class="sub"> Severity: </span>
+				High
+			</li>
+			<li><span class="sub"> Description: </span>
+				CORS is enabled for the server-side API, meaning anyone has read/write access to the database via the API. While the API can still limit how the database can be accessed, the modest methods provided by the API could still be abused by anyone. In our case:
+					<ul>
+						<li>
+							All vehicle entries can be easily obtained by anyone via the POST API.
+						</li>
+						<li>
+							All passenger entries can be easily obtained by anyone via the GET API.
+						</li>
+						<li>
+							Anyone could enter an infinite number of dummy objects into the database using the POST API, resulting in false information and a potential overload and breakdown of the database. I easily wrote a script that created infinite AJAX requests each of which inserted an unique dummy entry into the database via the POST API. After running the script for only a few seconds, almost 2000 dummy entries were already entered into the database.
+						</li>
+					</ul> 
+			</li>
+			<li><span class="sub"> Resolution: </span>
+				Disable CORS and/or require authentication to access the API and database. (However, even if CORS is disabled, an XSS vulnerability could still be abused to insert a similar database populating script into the website of the application itself.)
+			</li>
+
+			<img
+				src="images/loop_log.png"
+				alt="Papertrail log showing numerous POST requests with intervals of only a few seconds"
+				title="Papertrail log showing numerous POST requests with intervals of only a few seconds"
+			/>
+			<img
+				src="images/loop_db.png"
+				alt="A database containing almost 2000 dummy entires"
+				title="A database containing almost 2000 dummy entires"
+			/>
+			<img
+				src="images/loop_map.png"
+				alt="Some of the dummy entires visible in the client-side application"
+				title="Some of the dummy entires visible in the client-side application"
+			/>
+
+		</ul></li></br>
+		<li><ul>
+			<li><span class="sub"> Issue: </span>
+				HTTP
+			</li>
+			<li><span class="sub"> Location: </span>
+				Whole application
+			</li>
+			<li><span class="sub"> Severity: </span>
+				High
+			</li>
+			<li><span class="sub"> Description: </span>
+				The use of an insecure connection allows the data traveling between the client-side and the server-side of the application (or in the case of CORS enabled, anyone and the server-side) to be intercepted and modified. This could cause sensitive data to be compromised and potentially modified en route. In the case of an actual ridesharing application, this would encourage criminal activity and could cause potentially dangerous situations.
+			</li>
+			<li><span class="sub"> Resolution: </span>
+				Use HTTPS, ensuring the use of an SSL connection and the encryption of sensitive data. Requiring authentication to use the application is also an excellent idea.
+			</li>
+
+		</ul></li>
+	</ol>
+
+	<h2>Conclusion</h2>
+	<p>
+		Unfortunately this ridesharing application imitator suffers from a number of fairly severe security threats. Fortunately, however, this application is meant to merely imitate a ridesharign service. These security flaws would be unacceptable for an actual ridesharing service as they would severely compromise the safety and privacy of both the users and the employees of the service. The main improvements that should be made are:
+	</p>
+	<ul>
+		<li>
+			Validation and sanitation of all user input
+		</li>
+		<li>
+			Requiring authentication to access the service
+		</li>
+		<li>
+			Disabling CORS
+		</li>
+		<li>
+			Using HTTPS
+		</li>
+	</ul>
+
+	<h2>References</h2>
+	<ul>
+		<li>
+			<a target="_blank" href="https://tuftsdev.github.io/WebProgramming/notes/web_security.html">COMP20: Web Security</a>
+		</li>
+		<li>
+			<a target="_blank" href="http://www.veracode.com/security/xss">XSS Tutorial</a>
+		</li>
+		<li>
+			<a target="_blank" href="https://gist.github.com/mchow01/49f8979829f1c488d922">MongoDB Injection</a>
+		</li>
+		<li>
+			<a target="_blank" href="http://stackoverflow.com/">StackOverflow</a>
+		</li>
+		<li>
+			<a target="_blank" href="https://www.w3schools.com/">w3chools.com</a>
+		</li>
+		<li>
+			<a target="_blank" href="https://www.getpostman.com/">Postman</a>
+		</li>
+		<li>
+			<a target="_blank" href="https://portswigger.net/burp/">Burp Suite</a>
+		</li>
+		<li>
+			<a target="_blank" href="https://www.google.com">Google</a>
+		</li>
+		<li>
+			<a target="_blank" href="http://mchow01.github.io/">Ming Chow</a>
+		</li>
+	</ul>
+
+</body>
+
+</html>

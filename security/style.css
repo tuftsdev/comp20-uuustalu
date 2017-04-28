@@ -1,0 +1,24 @@
+body {
+	background-color: #FEFFF1;
+	color: black;
+	font-family: "Courier New", Courier, monospace;
+	font-size: 14px;
+	margin-left: 5%;
+	margin-right: 5%;
+	line-height: 1.15;
+}
+
+img {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	height: 75%;
+	width: 75%;
+}
+
+.sub {
+	font-weight: bold;
+}
+
+#intro {
+	font-weight: bold;
+}
